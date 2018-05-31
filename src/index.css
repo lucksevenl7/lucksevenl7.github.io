@@ -1,0 +1,46 @@
+.bg{
+	height : 500px;
+	width: 500px;
+	background-image: url(./fb.png);
+	background-repeat: no-repeat;
+	position: absolute;  
+    top: 50%;  
+    left: 50%;  
+    transform: translate(-50%, -50%); /*向左向上分别平移自身的一半*/  
+    -webkit-transform: translate(-50%, -50%);  
+    -moz-transform: translate(-50%, -50%);  
+    transition: 1s;  
+}
+
+.board-row{
+	  width: 616px;   
+	  margin-bottom: 106px;
+}
+
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
+
+}
+.fhref{
+	float: left;
+	margin-right: 125px;
+	text-align: center;
+}
+.area{
+	width: 40px;
+	height: 38px;
+	margin-left: -11px;
+}
+.status{
+	text-align: center;
+}
+
+
+
+
+
+
+
+
