@@ -3,6 +3,7 @@ import Piece from './piece';
 
 interface Istate {
 	next: string,
+	other:string,
 	points: string[][];
 	selected: number[],
 	size: number
@@ -15,6 +16,7 @@ class Game extends React.Component<any, Istate> {
 		super(props);
 		this.state = {
 			next: 'B',
+			other: 'R',
 			points: [
 				['R', 'R', 'R', 'R'],
 				['', '', '', ''],
@@ -49,11 +51,11 @@ class Game extends React.Component<any, Istate> {
 		});
 	}
 
-	public isKill(arr: string[], next: string, other: string) {
-		return !!(arr.toString() === `${next},${next},${other},`
-			|| arr.toString() === `,${next},${next},${other}`
-			|| arr.toString() === `,${other},${next},${next}`
-			|| arr.toString() === `${other},${next},${next},`
+	public isKill(arr: string[]) {
+		return !!(arr.toString() === `${this.state.next},${this.state.next},${this.state.other},`
+			|| arr.toString() === `,${this.state.next},${this.state.next},${this.state.other}`
+			|| arr.toString() === `,${this.state.other},${this.state.next},${this.state.next}`
+			|| arr.toString() === `${this.state.other},${this.state.next},${this.state.next},`
 		);
 	}
 
@@ -89,47 +91,9 @@ class Game extends React.Component<any, Istate> {
 		});
 	}
 
-	public pointInlastConformKillRule(point:number[],lastConformKillRule:number[][]){
-		for (let i = 0; i < lastConformKillRule.length; ++i) {
-			if (point.toString() === lastConformKillRule[i].toString()) {
-				return true;
-			}
-		}
-		return false;
-	}
 
-	public lastConformKillRule(temp:string[][]){
-		const lastConformKillRule = [];
-		const next = this.state.next;
-		const other = this.state.next === 'B' ? 'R' : 'B';
-
-		for (let x = 0; x < this.state.size; ++x) {
-			if (this.isKill(temp[x], next, other)) {
-
-				for (let y = 0; y < this.state.size; ++y) {
-					if (temp[x][y] === other) {
-						lastConformKillRule.push([x,y]);
-					}
-				}
-
-			}
-
-		}
-
-		for (let z = 0; z < this.state.size; ++z) {
-			const column = temp.map((row) => row[z]);
-			if (this.isKill(column, next, other)) {
-
-				for (let a = 0; a < this.state.size; ++a) {
-					if (temp[a][z] === other) {
-						lastConformKillRule.push([a,z]);
-					}
-				}
-
-			}
-		}
-
-		return lastConformKillRule;
+	public otherSide(type:string){
+		return type === 'B' ? 'R' : 'B';
 	}
 
 	public pointOnClick(pieceType: string, i: number, j: number) {
@@ -137,23 +101,15 @@ class Game extends React.Component<any, Istate> {
 			if (this.state.selected[0] === -1) {
 				alert('请先选择要移动的棋子');
 			} else if (this.canMove(i, j)) {
-				const next = this.state.next;
-				const other = this.state.next === 'B' ? 'R' : 'B';
 				const temp = this.state.points.slice();
-				const lastConformKillRule = this.lastConformKillRule(temp);
-
 				temp[i][j] = temp[this.state.selected[0]][this.state.selected[1]];
 				temp[this.state.selected[0]][this.state.selected[1]] = '';
 
-				
-
 				for (let x = 0; x < this.state.size; ++x) {
-					if (this.isKill(temp[x], next, other)) {
+					if (this.isKill(temp[x]) && x === i) {
 
 						for (let y = 0; y < this.state.size; ++y) {
-							if (temp[x][y] === other
-								&& !this.pointInlastConformKillRule([x,y],lastConformKillRule)
-								) {
+							if (temp[x][y] === this.state.other) {
 								temp[x][y] = '';
 							}
 						}
@@ -164,11 +120,10 @@ class Game extends React.Component<any, Istate> {
 
 				for (let z = 0; z < this.state.size; ++z) {
 					const column = temp.map((row) => row[z]);
-					if (this.isKill(column, next, other)) {
+					if (this.isKill(column) && z===j) {
 
 						for (let a = 0; a < this.state.size; ++a) {
-							if (temp[a][z] === other
-								&& !this.pointInlastConformKillRule([a,z],lastConformKillRule)) {
+							if (temp[a][z] === this.state.other) {
 								temp[a][z] = '';
 							}
 						}
@@ -178,7 +133,8 @@ class Game extends React.Component<any, Istate> {
 
 
 				this.setState({
-					next: other,
+					next: this.otherSide(this.state.next),
+					other:this.otherSide(this.state.other),
 					points: temp
 				});
 
